@@ -190,11 +190,7 @@
 <body>
     <div class="header">
         <div class="logo-container">
-            <!-- Logo placeholder - substitua com o logo real do Tecnovida -->
-            <svg width="180" height="40" viewBox="0 0 180 40">
-                <rect width="180" height="40" fill="#006633" rx="5"></rect>
-                <text x="90" y="25" fill="white" text-anchor="middle" font-size="16" font-weight="bold">TECNOVIDA</text>
-            </svg>
+            <img src="https://tecnovida.com.br/logo.png" alt="Logo Tecnovida">
         </div>
     </div>
 
@@ -244,6 +240,11 @@
             
             // Exibir código para o usuário
             codigoDisplay.textContent = codigo;
+            console.log("Enviando para a API:", { promotor, codigo });
+            codigoDisplay.insertAdjacentHTML(
+                "afterend",
+                `<p style="font-size:14px; margin-top:10px;">Promotor: <strong>${promotor}</strong><br>Código: <strong>${codigo}</strong></p>`
+            );
             
             // Salvar no banco de dados usando a API fornecida
             saveToDatabase(promotor, codigo);

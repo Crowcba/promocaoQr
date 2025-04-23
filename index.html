@@ -201,7 +201,7 @@
     <div class="main-content">
         <div class="container">
             <div class="promo-banner">Promoção Exclusiva!</div>
-            <h1>Promotor Cadastrado</h1>
+            <h1>Promoção</h1>
             <div class="codigo-container">
                 <div class="codigo-label">Seu código promocional:</div>
                 <div class="codigo-value" id="codigo-display">Carregando...</div>
@@ -250,7 +250,7 @@
             
             function saveToDatabase(promotor, codigo) {
                 // Configurar requisição para a API
-                fetch('http://softoneapi.tecnovida.com.br:8080/api/PromocaoQr', {
+                fetch('/api/PromocaoQr', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

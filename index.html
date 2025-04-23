@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Promoção - Tecnovida</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.5/dist/umd/supabase.js"></script>
     <style>
         * {
             margin: 0;
@@ -221,7 +221,8 @@
             const SUPABASE_URL = 'https://nulyawpvxtazovjuvrmn.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51bHlhd3B2eHRhem92anV2cm1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NDk2MDQsImV4cCI6MjA2MTAyNTYwNH0.Shu8gmfU1lO1QNrPdukeFbJpTb6UlqrPfcOtXyj7W_s';
 
-            const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            const { createClient } = supabase;
+            const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             const loading = document.getElementById('loading-indicator');
             const statusMessage = document.getElementById('status-message');
             const codigoDisplay = document.getElementById('codigo-display');
@@ -243,11 +244,12 @@
                 "afterend",
                 `<p style="font-size:14px; margin-top:10px;">Promotor: <strong>${promotor}</strong><br>Código: <strong>${codigo}</strong></p>`
             );
+            
 
             saveToDatabase(promotor, codigo);
 
             function saveToDatabase(promotor, codigo) {
-                supabase
+                supabaseClient
                     .from('promocoes')
                     .insert([{ promotor, codigo }])
                     .then(({ error }) => {

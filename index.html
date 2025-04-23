@@ -250,7 +250,7 @@
             
             function saveToDatabase(promotor, codigo) {
                 // Configurar requisição para a API
-                fetch('https://softoneapi.tecnovida.com.br/api/PromocaoQr', {
+                fetch('http://softoneapi.tecnovida.com.br:8080/api/PromocaoQr', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

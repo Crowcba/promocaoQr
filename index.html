@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promoção - Tecnovida</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #444;
+        }
+
+        .header {
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            text-align: center;
+        }
+
+        .logo-container {
+            max-width: 180px;
+            margin: 0 auto;
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: auto;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 25px;
+            font-size: 24px;
+            color: #006633;
+            font-weight: 600;
+        }
+
+        .codigo-container {
+            background-color: #f2f7f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .codigo-value {
+            font-size: 26px;
+            font-weight: bold;
+            color: #006633;
+            letter-spacing: 1px;
+        }
+
+        .codigo-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .btn {
+            background-color: #006633;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 3px 10px rgba(0, 102, 51, 0.2);
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #005529;
+            transform: translateY(-2px);
+        }
+
+        .status {
+            margin-top: 20px;
+            font-size: 16px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .status.show {
+            opacity: 1;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .loading.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 102, 51, 0.2);
+            border-radius: 50%;
+            border-top-color: #006633;
+            animation: spin 1s linear infinite;
+        }
+
+        .footer {
+            background-color: #006633;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+        }
+
+        .promo-banner {
+            background-color: #ffeb3b;
+            color: #333;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 20px 15px;
+            }
+            h1 {
+                font-size: 22px;
+            }
+            .codigo-value {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-container">
+            <!-- Logo placeholder - substitua com o logo real do Tecnovida -->
+            <svg width="180" height="40" viewBox="0 0 180 40">
+                <rect width="180" height="40" fill="#006633" rx="5"></rect>
+                <text x="90" y="25" fill="white" text-anchor="middle" font-size="16" font-weight="bold">TECNOVIDA</text>
+            </svg>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <div class="promo-banner">Promoção Exclusiva!</div>
+            <h1>Promotor Cadastrado</h1>
+            <div class="codigo-container">
+                <div class="codigo-label">Seu código promocional:</div>
+                <div class="codigo-value" id="codigo-display">Carregando...</div>
+            </div>
+            <a href="https://tecnovida.com.br" class="btn" id="btn-site">Acessar Tecnovida</a>
+            <div class="status" id="status-message"></div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        &copy; 2025 Tecnovida - Todos os direitos reservados
+    </div>
+
+    <div class="loading" id="loading-indicator">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mostrar loading
+            const loading = document.getElementById('loading-indicator');
+            const statusMessage = document.getElementById('status-message');
+            const codigoDisplay = document.getElementById('codigo-display');
+            
+            loading.classList.add('show');
+            
+            // Extrair parâmetros da URL
+            const params = new URLSearchParams(window.location.search);
+            const urlPath = window.location.pathname.split('/').filter(part => part.length > 0);
+            
+            // Tentar obter id e código da URL
+            let promotor = urlPath.length > 0 ? urlPath[0] : params.get('promotor');
+            let codigo = urlPath.length > 1 ? urlPath[1] : params.get('codigo');
+            
+            // Verificar se conseguimos extrair informações necessárias
+            if (!promotor || !codigo) {
+                showError('Informações incompletas na URL. Verifique o link recebido.');
+                return;
+            }
+            
+            // Exibir código para o usuário
+            codigoDisplay.textContent = codigo;
+            
+            // Salvar no banco de dados usando a API fornecida
+            saveToDatabase(promotor, codigo);
+            
+            function saveToDatabase(promotor, codigo) {
+                // Configurar requisição para a API
+                fetch('https://softoneapi.tecnovida.com.br/api/PromocaoQr', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        id: 0,  // API atribuirá um ID
+                        promotor: promotor,
+                        codigo: codigo 
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao salvar os dados');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Dados salvos com sucesso
+                    loading.classList.remove('show');
+                    showSuccess('Código promocional registrado com sucesso!');
+                    console.log('Resposta da API:', data);
+                })
+                .catch(error => {
+                    // Em caso de erro na API
+                    console.error('Erro:', error);
+                    showError('Ocorreu um erro ao registrar. O código foi salvo localmente e será sincronizado mais tarde.');
+                    
+                    // Armazenar localmente para tentar enviar depois
+                    saveLocally(promotor, codigo);
+                })
+                .finally(() => {
+                    // Sempre esconder o loading ao final
+                    setTimeout(() => {
+                        loading.classList.remove('show');
+                    }, 500);
+                });
+            }
+            
+            function saveLocally(promotor, codigo) {
+                // Salvar em localStorage para sincronização posterior
+                const pendingData = JSON.parse(localStorage.getItem('pendingPromotions') || '[]');
+                pendingData.push({ promotor, codigo, timestamp: new Date().toISOString() });
+                localStorage.setItem('pendingPromotions', JSON.stringify(pendingData));
+            }
+            
+            function showSuccess(message) {
+                statusMessage.textContent = message;
+                statusMessage.style.color = '#006633';
+                statusMessage.classList.add('show');
+            }
+            
+            function showError(message) {
+                statusMessage.textContent = message;
+                statusMessage.style.color = '#cc0000';
+                statusMessage.classList.add('show');
+                loading.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

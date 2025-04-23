@@ -282,6 +282,23 @@
                 statusMessage.classList.add('show');
                 loading.classList.remove('show');
             }
+            // Adiciona registro de clique no botão "Acessar Tecnovida"
+            document.getElementById('btn-site').addEventListener('click', function (event) {
+                event.preventDefault(); // evita redirecionamento imediato
+
+                supabaseClient
+                    .from('cliques_tecnovida')
+                    .insert([{ promotor, codigo, clicado_em: new Date().toISOString() }])
+                    .then(({ error }) => {
+                        if (error) {
+                            console.warn('Erro ao registrar clique:', error);
+                        } else {
+                            console.log('Clique registrado com sucesso!');
+                        }
+                        // Redireciona após tentativa de registro
+                        window.location.href = 'https://tecnovida.com.br';
+                    });
+            });
         });
     </script>
 </body>

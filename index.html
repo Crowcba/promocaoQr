@@ -256,10 +256,9 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ 
-                        id: 0,  // API atribuirá um ID
-                        promotor: promotor,
-                        codigo: codigo 
+                    body: JSON.stringify({
+                        Promotor: promotor,
+                        Codigo: codigo 
                     })
                 })
                 .then(response => {

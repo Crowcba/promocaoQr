@@ -1,2 +1,2 @@
 /api/*  http://softoneapi.tecnovida.com.br:8080/:splat  200!
-/*  /index.html  200
+/*      /index.html                                     200

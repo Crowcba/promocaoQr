@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Promoção - Tecnovida</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         * {
             margin: 0;
@@ -206,7 +207,7 @@
             <div class="status" id="status-message"></div>
         </div>
     </div>
-    
+
     <div class="footer">
         &copy; 2025 Tecnovida - Todos os direitos reservados
     </div>
@@ -216,92 +217,63 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Mostrar loading
+        document.addEventListener('DOMContentLoaded', function () {
+            const SUPABASE_URL = 'https://nulyawpvxtazovjuvrmn.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51bHlhd3B2eHRhem92anV2cm1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NDk2MDQsImV4cCI6MjA2MTAyNTYwNH0.Shu8gmfU1lO1QNrPdukeFbJpTb6UlqrPfcOtXyj7W_s';
+
+            const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             const loading = document.getElementById('loading-indicator');
             const statusMessage = document.getElementById('status-message');
             const codigoDisplay = document.getElementById('codigo-display');
-            
+
             loading.classList.add('show');
-            
-            // Extrair parâmetros da URL
+
             const params = new URLSearchParams(window.location.search);
             const urlPath = window.location.pathname.split('/').filter(part => part.length > 0);
-            
-            // Tentar obter id e código da URL
             let promotor = urlPath.length > 0 ? urlPath[0] : params.get('promotor');
             let codigo = urlPath.length > 1 ? urlPath[1] : params.get('codigo');
-            
-            // Verificar se conseguimos extrair informações necessárias
+
             if (!promotor || !codigo) {
                 showError('Informações incompletas na URL. Verifique o link recebido.');
                 return;
             }
-            
-            // Exibir código para o usuário
+
             codigoDisplay.textContent = codigo;
-            console.log("Enviando para a API:", { promotor, codigo });
             codigoDisplay.insertAdjacentHTML(
                 "afterend",
                 `<p style="font-size:14px; margin-top:10px;">Promotor: <strong>${promotor}</strong><br>Código: <strong>${codigo}</strong></p>`
             );
-            
-            // Salvar no banco de dados usando a API fornecida
+
             saveToDatabase(promotor, codigo);
-            
+
             function saveToDatabase(promotor, codigo) {
-                // Configurar requisição para a API
-                fetch('/api/PromocaoQr', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        Promotor: promotor,
-                        Codigo: codigo 
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Erro ao salvar os dados');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Dados salvos com sucesso
-                    loading.classList.remove('show');
-                    showSuccess('Código promocional registrado com sucesso!');
-                    console.log('Resposta da API:', data);
-                })
-                .catch(error => {
-                    // Em caso de erro na API
-                    console.error('Erro:', error);
-                    showError('Ocorreu um erro ao registrar. O código foi salvo localmente e será sincronizado mais tarde.');
-                    
-                    // Armazenar localmente para tentar enviar depois
-                    saveLocally(promotor, codigo);
-                })
-                .finally(() => {
-                    // Sempre esconder o loading ao final
-                    setTimeout(() => {
+                supabase
+                    .from('promocoes')
+                    .insert([{ promotor, codigo }])
+                    .then(({ error }) => {
+                        if (error) {
+                            console.error('Erro ao salvar:', error);
+                            showError('Erro ao salvar na Supabase. Código salvo localmente.');
+                            saveLocally(promotor, codigo);
+                        } else {
+                            showSuccess('Código promocional registrado com sucesso!');
+                        }
                         loading.classList.remove('show');
-                    }, 500);
-                });
+                    });
             }
-            
+
             function saveLocally(promotor, codigo) {
-                // Salvar em localStorage para sincronização posterior
                 const pendingData = JSON.parse(localStorage.getItem('pendingPromotions') || '[]');
                 pendingData.push({ promotor, codigo, timestamp: new Date().toISOString() });
                 localStorage.setItem('pendingPromotions', JSON.stringify(pendingData));
             }
-            
+
             function showSuccess(message) {
                 statusMessage.textContent = message;
                 statusMessage.style.color = '#006633';
                 statusMessage.classList.add('show');
             }
-            
+
             function showError(message) {
                 statusMessage.textContent = message;
                 statusMessage.style.color = '#cc0000';

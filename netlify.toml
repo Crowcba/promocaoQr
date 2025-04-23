@@ -2,6 +2,8 @@
   from = "/api/*"
   to = "http://softoneapi.tecnovida.com.br:8080/:splat"
   status = 200
+  force = true
+
 
 [[redirects]]
   from = "/*"

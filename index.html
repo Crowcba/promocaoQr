@@ -72,6 +72,33 @@
             margin-bottom: 30px;
             border: 1px solid #e0e0e0;
         }
+        .btn-copy {
+            background-color: #cccccc;
+            color: #333;
+            margin-left: 10px;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .btn-copy:hover {
+            background-color: #bbbbbb;
+        }
+
+        .btn-icon-copy {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+            color: #006633;
+        }
+
+        .btn-icon-copy:hover {
+            color: #004d26;
+            transform: scale(1.1);
+        }
 
         .codigo-value {
             font-size: 26px;
@@ -204,6 +231,9 @@
             <div class="codigo-container">
                 <div class="codigo-label">Seu código promocional:</div>
                 <div class="codigo-value" id="codigo-display">Carregando...</div>
+                <button class="btn-icon-copy" onclick="copiarCodigo()" aria-label="Copiar código">
+                    📋
+                </button>
             </div>
             <a href="https://tecnovida.com.br" class="btn" id="btn-site" style="pointer-events: none; opacity: 0.6;">Acessar Tecnovida</a>
             <div class="status" id="status-message"></div>
@@ -306,6 +336,15 @@
                     });
             });
         });
+
+        function copiarCodigo() {
+            const codigo = document.getElementById('codigo-display').textContent;
+            navigator.clipboard.writeText(codigo).then(() => {
+                alert('Código copiado para a área de transferência!');
+            }, () => {
+                alert('Erro ao copiar o código.');
+            });
+        }
     </script>
 </body>
 </html>

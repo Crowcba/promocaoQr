@@ -251,7 +251,7 @@
             function saveToDatabase(promotor, codigo) {
                 supabaseClient
                     .from('promocoes')
-                    .insert([{ promotor, codigo }])
+                    .insert([{ promotor, codigo, clicou: false }])
                     .then(({ error }) => {
                         if (error) {
                             console.error('Erro ao salvar:', error);
@@ -282,20 +282,21 @@
                 statusMessage.classList.add('show');
                 loading.classList.remove('show');
             }
-            // Adiciona registro de clique no botão "Acessar Tecnovida"
+            // Adiciona registro de clique no botão "Acessar Tecnovida" e atualiza 'clicou' na tabela promocoes
             document.getElementById('btn-site').addEventListener('click', function (event) {
-                event.preventDefault(); // evita redirecionamento imediato
+                event.preventDefault();
 
+                // Atualiza a flag 'clicou' na tabela promocoes
                 supabaseClient
-                    .from('cliques_tecnovida')
-                    .insert([{ promotor, codigo, clicado_em: new Date().toISOString() }])
+                    .from('promocoes')
+                    .update({ clicou: true })
+                    .eq('promotor', promotor)
+                    .eq('codigo', codigo)
                     .then(({ error }) => {
                         if (error) {
-                            console.warn('Erro ao registrar clique:', error);
-                        } else {
-                            console.log('Clique registrado com sucesso!');
+                            console.warn('Erro ao atualizar "clicou":', error);
                         }
-                        // Redireciona após tentativa de registro
+                        // Redireciona após tentativa
                         window.location.href = 'https://tecnovida.com.br';
                     });
             });

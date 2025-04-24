@@ -242,10 +242,7 @@
             }
 
             codigoDisplay.textContent = codigo;
-            codigoDisplay.insertAdjacentHTML(
-                "afterend",
-                `<p style="font-size:14px; margin-top:10px;">Promotor: <strong>${promotor}</strong><br>Código: <strong>${codigo}</strong></p>`
-            );
+            // Removido texto visível de promotor e código para não mostrar na tela
             
 
             saveToDatabase(promotor, codigo);
@@ -298,8 +295,9 @@
                         if (error) {
                             console.warn('Erro ao atualizar "clicou":', error);
                         }
-                        // Redireciona após tentativa
-                        window.location.href = 'https://tecnovida.com.br';
+                        setTimeout(() => {
+                            window.location.href = 'https://tecnovida.com.br';
+                        }, 500); // pequena pausa para garantir envio
                     });
             });
         });

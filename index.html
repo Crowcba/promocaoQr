@@ -205,7 +205,7 @@
                 <div class="codigo-label">Seu código promocional:</div>
                 <div class="codigo-value" id="codigo-display">Carregando...</div>
             </div>
-            <a href="https://tecnovida.com.br" class="btn" id="btn-site">Acessar Tecnovida</a>
+            <a href="https://tecnovida.com.br" class="btn" id="btn-site" style="pointer-events: none; opacity: 0.6;">Acessar Tecnovida</a>
             <div class="status" id="status-message"></div>
         </div>
     </div>
@@ -258,6 +258,8 @@
                             saveLocally(promotor, codigo);
                         } else {
                             showSuccess('Código promocional registrado com sucesso!');
+                            document.getElementById('btn-site').style.pointerEvents = 'auto';
+                            document.getElementById('btn-site').style.opacity = '1';
                         }
                         loading.classList.remove('show');
                     });

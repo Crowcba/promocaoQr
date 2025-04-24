@@ -229,6 +229,8 @@
             const statusMessage = document.getElementById('status-message');
             const codigoDisplay = document.getElementById('codigo-display');
 
+            let registroId = null;
+
             loading.classList.add('show');
 
             const params = new URLSearchParams(window.location.search);
@@ -251,12 +253,15 @@
                 supabaseClient
                     .from('promocoes')
                     .insert([{ promotor, codigo, clicou: false }])
-                    .then(({ error }) => {
+                    .select('id')
+                    .single()
+                    .then(({ data, error }) => {
                         if (error) {
                             console.error('Erro ao salvar:', error);
                             showError('Erro ao salvar na Supabase. Código salvo localmente.');
                             saveLocally(promotor, codigo);
                         } else {
+                            registroId = data?.id;
                             showSuccess('Código promocional registrado com sucesso!');
                             document.getElementById('btn-site').style.pointerEvents = 'auto';
                             document.getElementById('btn-site').style.opacity = '1';
@@ -291,8 +296,7 @@
                 supabaseClient
                     .from('promocoes')
                     .update({ clicou: true })
-                    .eq('promotor', promotor)
-                    .eq('codigo', codigo)
+                    .eq('id', registroId)
                     .then(({ error }) => {
                         if (error) {
                             console.warn('Erro ao atualizar "clicou":', error);

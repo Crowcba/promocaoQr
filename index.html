@@ -300,9 +300,9 @@
                     .then(({ error }) => {
                         if (error) {
                             console.warn('Erro ao atualizar "clicou":', error);
+                        } else {
+                            window.location.href = 'https://tecnovida.com.br';
                         }
-                        // Redirecionamento removido temporariamente para teste
-                        console.log('Clique registrado e update tentado. Verifique Supabase.');
                     });
             });
         });

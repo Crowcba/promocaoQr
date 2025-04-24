@@ -93,11 +93,20 @@
             cursor: pointer;
             margin-left: 10px;
             color: #006633;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, color 0.2s ease;
         }
 
         .btn-icon-copy:hover {
             color: #004d26;
             transform: scale(1.1);
+        }
+
+        .btn-icon-copy svg {
+            width: 24px;
+            height: 24px;
         }
 
         .codigo-value {
@@ -232,7 +241,10 @@
                 <div class="codigo-label">Seu código promocional:</div>
                 <div class="codigo-value" id="codigo-display">Carregando...</div>
                 <button class="btn-icon-copy" onclick="copiarCodigo()" aria-label="Copiar código">
-                    📋
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 
+                        1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                    </svg>
                 </button>
             </div>
             <a href="https://tecnovida.com.br" class="btn" id="btn-site" style="pointer-events: none; opacity: 0.6;">Acessar Tecnovida</a>
@@ -340,7 +352,10 @@
         function copiarCodigo() {
             const codigo = document.getElementById('codigo-display').textContent;
             navigator.clipboard.writeText(codigo).then(() => {
-                alert('Código copiado para a área de transferência!');
+                const statusMessage = document.getElementById('status-message');
+                statusMessage.textContent = 'Código copiado com sucesso!';
+                statusMessage.style.color = '#006633';
+                statusMessage.classList.add('show');
             }, () => {
                 alert('Erro ao copiar o código.');
             });

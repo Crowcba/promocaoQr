@@ -14,3 +14,9 @@
 
 - **Limpeza do Projeto**: Removidos arquivos e scripts de migração que não são mais necessários para a operação do sistema (`restore.js`, `update.js`, `generate-update-sql.js`, `update_script.sql` e o arquivo de backup do banco de dados).
 - **Teste de Conexão**: A conexão com o banco de dados foi testada com sucesso após a atualização das credenciais de acesso.
+
+## 2024-07-28
+
+- **Correção de Deploy (Netlify)**: Configurado o `netlify.toml` para corrigir o redirecionamento da API, que retornava erro 404. O arquivo `_redirects` foi removido.
+- **Adaptação da API**: A API foi ajustada para ser compatível com o ambiente serverless do Netlify, utilizando o pacote `serverless-http`.
+- **Remoção de Segredo**: Um token de acesso pessoal do GitHub foi removido do arquivo `tra-roles.md` e do histórico de commits para garantir a segurança do repositório.

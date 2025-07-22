@@ -26,13 +26,7 @@ async function connectToDatabase() {
 app.post('/api/validate-code', async (req, res) => {
     await connectToDatabase();
     console.log('Requisição recebida em /api/validate-code:', req.body);
-    const { code } = req.body;
-
-    if (!code || !code.includes('/')) {
-        return res.status(400).json({ message: 'O formato do código é inválido. Use o formato promotor/codigo.' });
-    }
-
-    const [promotor, codigo] = code.split('/');
+    const { promotor, code: codigo } = req.body;
 
     if (!promotor || !codigo) {
         return res.status(400).json({ message: 'Promotor ou código não fornecido no formato correto.' });

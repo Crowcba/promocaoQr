@@ -6,7 +6,6 @@
     <title>Promoção - Tecnovida</title>
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700&display=swap"></noscript>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.5/dist/umd/supabase.js"></script>
     <style>
         * {
             margin: 0;
@@ -262,16 +261,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const SUPABASE_URL = 'https://nulyawpvxtazovjuvrmn.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51bHlhd3B2eHRhem92anV2cm1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NDk2MDQsImV4cCI6MjA2MTAyNTYwNH0.Shu8gmfU1lO1QNrPdukeFbJpTb6UlqrPfcOtXyj7W_s';
-
-            const { createClient } = supabase;
-            const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             const loading = document.getElementById('loading-indicator');
             const statusMessage = document.getElementById('status-message');
             const codigoDisplay = document.getElementById('codigo-display');
-
-            let registroId = null;
+            const btnSite = document.getElementById('btn-site');
 
             loading.classList.add('show');
 
@@ -286,36 +279,34 @@
             }
 
             codigoDisplay.textContent = codigo;
-            // Removido texto visível de promotor e código para não mostrar na tela
             
+            validateCode(promotor, codigo);
 
-            saveToDatabase(promotor, codigo);
-
-            function saveToDatabase(promotor, codigo) {
-                supabaseClient
-                    .from('promocoes')
-                    .insert([{ promotor, codigo, clicou: false }])
-                    .select('id')
-                    .single()
-                    .then(({ data, error }) => {
-                        if (error) {
-                            console.error('Erro ao salvar:', error);
-                            showError('Erro ao salvar na Supabase. Código salvo localmente.');
-                            saveLocally(promotor, codigo);
-                        } else {
-                            registroId = data?.id;
-                            showSuccess('Código promocional registrado com sucesso!');
-                            document.getElementById('btn-site').style.pointerEvents = 'auto';
-                            document.getElementById('btn-site').style.opacity = '1';
-                        }
-                        loading.classList.remove('show');
+            async function validateCode(promotor, codigo) {
+                try {
+                    const response = await fetch('/api/validate-code', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ promotor, code: codigo }),
                     });
-            }
 
-            function saveLocally(promotor, codigo) {
-                const pendingData = JSON.parse(localStorage.getItem('pendingPromotions') || '[]');
-                pendingData.push({ promotor, codigo, timestamp: new Date().toISOString() });
-                localStorage.setItem('pendingPromotions', JSON.stringify(pendingData));
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        showSuccess(result.message || 'Código válido e registrado!');
+                        btnSite.style.pointerEvents = 'auto';
+                        btnSite.style.opacity = '1';
+                    } else {
+                        showError(result.message || 'Erro ao validar o código.');
+                    }
+                } catch (error) {
+                    console.error('Erro ao validar o código:', error);
+                    showError('Erro de comunicação com o servidor. Tente novamente.');
+                } finally {
+                    loading.classList.remove('show');
+                }
             }
 
             function showSuccess(message) {
@@ -330,23 +321,6 @@
                 statusMessage.classList.add('show');
                 loading.classList.remove('show');
             }
-            // Adiciona registro de clique no botão "Acessar Tecnovida" e atualiza 'clicou' na tabela promocoes
-            document.getElementById('btn-site').addEventListener('click', function (event) {
-                event.preventDefault();
-
-                // Atualiza a flag 'clicou' na tabela promocoes
-                supabaseClient
-                    .from('promocoes')
-                    .update({ clicou: true })
-                    .eq('id', registroId)
-                    .then(({ error }) => {
-                        if (error) {
-                            console.warn('Erro ao atualizar "clicou":', error);
-                        } else {
-                            window.location.href = 'https://tecnovida.com.br';
-                        }
-                    });
-            });
         });
 
         function copiarCodigo() {

@@ -1,54 +1,30 @@
 const express = require('express');
 const sql = require('mssql');
-const path = require('path');
-
-const app = express();
-const port = process.env.PORT || 3000;
-
-// Importa a configuração do banco de dados
+const serverless = require('serverless-http');
 const dbConfig = require('./dbConfig');
 
+const app = express();
 app.use(express.json());
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../index.html'));
-});
 
 let pool;
 
-async function initializeDatabase() {
+async function connectToDatabase() {
+    if (pool && pool.connected) {
+        return pool;
+    }
     try {
-        console.log('Tentando conectar com a configuração:', JSON.stringify(dbConfig, null, 2));
+        console.log('Conectando ao banco de dados...');
         pool = await new sql.ConnectionPool(dbConfig).connect();
         console.log('Conectado ao SQL Server.');
-
-        const checkTableQuery = `
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='promocoes' and xtype='U')
-            CREATE TABLE promocoes (
-                id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-                promotor NVARCHAR(255) NOT NULL,
-                codigo NVARCHAR(255) NOT NULL,
-                criado_em DATETIME DEFAULT GETDATE(),
-                clicou BIT DEFAULT 0
-            );
-        `;
-
-        await pool.request().query(checkTableQuery);
-        console.log('Tabela `promocoes` verificada/criada com sucesso.');
-
+        return pool;
     } catch (err) {
-        console.error('Erro na inicialização do banco de dados:', err);
-        process.exit(1); // Encerra a aplicação se a conexão com o BD falhar
+        console.error('Erro ao conectar com o banco de dados:', err);
+        throw err;
     }
 }
 
-initializeDatabase().then(() => {
-    app.listen(port, () => {
-        console.log(`Servidor rodando na porta ${port}`);
-    });
-});
-
 app.post('/api/validate-code', async (req, res) => {
+    await connectToDatabase();
     console.log('Requisição recebida em /api/validate-code:', req.body);
     const { code } = req.body;
 
@@ -96,6 +72,7 @@ app.post('/api/validate-code', async (req, res) => {
 });
 
 app.post('/api/restore-database', async (req, res) => {
+    await connectToDatabase();
     console.log('Iniciando a restauração dos dados via endpoint...');
     try {
         const backupFilePath = path.join(__dirname, '..', 'db_cluster-29-05-2025@11-23-51.backup');
@@ -173,3 +150,5 @@ app.post('/api/restore-database', async (req, res) => {
         res.status(500).json({ message: 'Erro interno do servidor ao restaurar dados.' });
     }
 });
+
+module.exports.handler = serverless(app);

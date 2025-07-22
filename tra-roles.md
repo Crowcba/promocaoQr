@@ -2,6 +2,7 @@
 
 O objetivo deste projeto é desenvolver uma aplicação web para uma campanha promocional que utiliza QR Codes. Os usuários poderão escanear QR Codes para participar de promoções e ganhar prêmios.
 
+
 ## Regras do Projeto
 
 1.  **Idioma**: Todo o código, comentários e documentação devem ser em português.

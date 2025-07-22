@@ -1,2 +1,10 @@
 # Local Netlify folder
 .netlify
+trae-log.md
+trae-roles.md
+
+# Vercel folder
+.vercel/
+
+# API dependencies
+api/node_modules/

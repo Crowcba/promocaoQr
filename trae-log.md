@@ -20,3 +20,16 @@
 - **Correção de Deploy (Netlify)**: Configurado o `netlify.toml` para corrigir o redirecionamento da API, que retornava erro 404. O arquivo `_redirects` foi removido.
 - **Adaptação da API**: A API foi ajustada para ser compatível com o ambiente serverless do Netlify, utilizando o pacote `serverless-http`.
 - **Remoção de Segredo**: Um token de acesso pessoal do GitHub foi removido do arquivo `tra-roles.md` e do histórico de commits para garantir a segurança do repositório.
+- **Correção de Dependências**: As dependências do projeto foram centralizadas no `package.json` da raiz para corrigir falhas de build no Netlify. O `package.json` da pasta `api` foi removido.
+- **Correção de Erro 400**: Ajustada a API para receber `promotor` e `codigo` como campos separados no corpo da requisição, corrigindo a inconsistência com o frontend e resolvendo o erro de Bad Request.
+
+## 2024-12-19
+
+- **Correção de Erro Interno no Servidor (Netlify)**: Identificados e corrigidos problemas que causavam erro interno no servidor:
+  - **Criado `package.json` específico para pasta `api/`**: Adicionadas dependências necessárias para o Netlify Functions
+  - **Melhorado tratamento de erros**: Adicionados logs detalhados para debug no ambiente Netlify
+  - **Adicionado middleware CORS**: Para evitar problemas de cross-origin
+  - **Criada rota de health check**: `/api/health` para verificar se a API está funcionando
+  - **Otimizada configuração do banco**: Ajustados timeouts e configurações específicas para ambiente serverless
+  - **Atualizado `netlify.toml`**: Adicionadas configurações de build e ambiente de produção
+- **Problemas identificados**: Dependências não instaladas corretamente no ambiente serverless, falta de logs para debug, e configurações inadequadas para o ambiente Netlify

@@ -1,0 +1,14 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "API para validação de códigos promocionais",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mssql": "^7.2.1",
+    "serverless-http": "^3.2.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+} 

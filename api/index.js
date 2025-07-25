@@ -6,6 +6,18 @@ const dbConfig = require('./dbConfig');
 const app = express();
 app.use(express.json());
 
+// Configuração específica para Netlify
+const netlifyConfig = {
+    ...dbConfig,
+    connectionTimeout: 30000,
+    requestTimeout: 30000,
+    pool: {
+        max: 5,
+        min: 0,
+        idleTimeoutMillis: 30000
+    }
+};
+
 let pool;
 
 async function connectToDatabase() {
@@ -14,41 +26,83 @@ async function connectToDatabase() {
     }
     try {
         console.log('Conectando ao banco de dados...');
-        pool = await new sql.ConnectionPool(dbConfig).connect();
-        console.log('Conectado ao SQL Server.');
+        console.log('Configuração do banco:', {
+            server: netlifyConfig.server,
+            port: netlifyConfig.port,
+            database: netlifyConfig.database,
+            user: netlifyConfig.user
+        });
+        
+        pool = await new sql.ConnectionPool(netlifyConfig).connect();
+        console.log('Conectado ao SQL Server com sucesso.');
         return pool;
     } catch (err) {
-        console.error('Erro ao conectar com o banco de dados:', err);
+        console.error('Erro detalhado ao conectar com o banco de dados:', err);
+        console.error('Stack trace:', err.stack);
         throw err;
     }
 }
 
-app.post('/api/validate-code', async (req, res) => {
-    await connectToDatabase();
-    console.log('Requisição recebida em /api/validate-code:', req.body);
-    const { promotor, code: codigo } = req.body;
-
-    if (!promotor || !codigo) {
-        return res.status(400).json({ message: 'Promotor ou código não fornecido no formato correto.' });
+// Middleware para CORS
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+    } else {
+        next();
     }
+});
 
+// Rota de teste para verificar se a API está funcionando
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ 
+        message: 'API funcionando corretamente',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
+
+app.post('/api/validate-code', async (req, res) => {
+    console.log('Requisição recebida em /api/validate-code');
+    console.log('Body da requisição:', req.body);
+    
     try {
+        await connectToDatabase();
+        
+        const { promotor, code: codigo } = req.body;
+
+        if (!promotor || !codigo) {
+            console.log('Dados inválidos recebidos:', { promotor, codigo });
+            return res.status(400).json({ 
+                message: 'Promotor ou código não fornecido no formato correto.',
+                received: { promotor, codigo }
+            });
+        }
+
+        console.log('Validando código:', { promotor, codigo });
+
         const request = pool.request();
         // Verifica se o código já existe para evitar duplicatas
         let result = await request
             .input('codigo', sql.NVarChar, codigo)
             .query('SELECT * FROM promocoes WHERE codigo = @codigo');
 
+        console.log('Resultado da consulta:', result.recordset);
+
         if (result.recordset.length > 0) {
             // Se o código já existe, verifica se já foi clicado
             const record = result.recordset[0];
             if (record.clicou) {
+                console.log('Código já utilizado:', codigo);
                 return res.status(200).json({ message: 'Este código já foi utilizado!' });
             } else {
                  // Atualiza o registro existente para marcar como clicado
                 await pool.request()
                     .input('codigo', sql.NVarChar, codigo)
                     .query('UPDATE promocoes SET clicou = 1 WHERE codigo = @codigo');
+                console.log('Código atualizado com sucesso:', codigo);
                 return res.status(200).json({ message: 'Código promocional validado e atualizado!' });
             }
         } else {
@@ -57,11 +111,16 @@ app.post('/api/validate-code', async (req, res) => {
                 .input('promotor', sql.NVarChar, promotor)
                 .input('codigo', sql.NVarChar, codigo)
                 .query('INSERT INTO promocoes (promotor, codigo) VALUES (@promotor, @codigo)');
+            console.log('Novo código registrado com sucesso:', { promotor, codigo });
             return res.status(201).json({ message: 'Código promocional registrado com sucesso!' });
         }
     } catch (err) {
         console.error('Erro detalhado no banco de dados:', err);
-        return res.status(500).json({ message: 'Erro interno do servidor.' });
+        console.error('Stack trace:', err.stack);
+        return res.status(500).json({ 
+            message: 'Erro interno do servidor.',
+            error: process.env.NODE_ENV === 'development' ? err.message : 'Erro de conexão com banco de dados'
+        });
     }
 });
 

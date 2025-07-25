@@ -1,9 +1,12 @@
+const sql = require('mssql');
+
+// Configuração do banco de dados usando variáveis de ambiente
 const config = {
-    user: 'promocao_user',
-    password: 'T3cN0!@#',
-    server: '201.71.178.65',
-    port: 6565,
-    database: 'Aleatorio',
+    user: process.env.DB_USER || 'promocao_user',
+    password: process.env.DB_PASSWORD || 'T3cN0!@#',
+    server: process.env.DB_SERVER || '201.71.178.65',
+    port: parseInt(process.env.DB_PORT) || 6565,
+    database: process.env.DB_NAME || 'Aleatorio',
     options: {
         encrypt: true,
         trustServerCertificate: true,

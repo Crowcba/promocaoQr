@@ -18,15 +18,35 @@
 [build.environment]
   NODE_ENV = "production"
   DB_TYPE = "sqlserver"
+  DB_USER = "promocao_user"
+  DB_PASSWORD = "T3cN0!@#"
+  DB_SERVER = "201.71.178.65"
+  DB_PORT = "6565"
+  DB_NAME = "Aleatorio"
 
 [context.production.environment]
   NODE_ENV = "production"
   DB_TYPE = "sqlserver"
+  DB_USER = "promocao_user"
+  DB_PASSWORD = "T3cN0!@#"
+  DB_SERVER = "201.71.178.65"
+  DB_PORT = "6565"
+  DB_NAME = "Aleatorio"
 
 [context.deploy-preview.environment]
   NODE_ENV = "development"
   DB_TYPE = "sqlserver"
+  DB_USER = "promocao_user"
+  DB_PASSWORD = "T3cN0!@#"
+  DB_SERVER = "201.71.178.65"
+  DB_PORT = "6565"
+  DB_NAME = "Aleatorio"
 
 [context.branch-deploy.environment]
   NODE_ENV = "development"
   DB_TYPE = "sqlserver"
+  DB_USER = "promocao_user"
+  DB_PASSWORD = "T3cN0!@#"
+  DB_SERVER = "201.71.178.65"
+  DB_PORT = "6565"
+  DB_NAME = "Aleatorio"

@@ -98,3 +98,12 @@
   - **Problema identificado**: Configuração inadequada para ambiente serverless
   - **Otimização da configuração**: Pool reduzido para 5 conexões, timeouts ajustados
   - **Commit e Push**: Alterações enviadas para o repositório Git com commit `d816185` - "fix: otimizar configuração do banco para ambiente serverless"
+
+- **Correção do Erro de Permissão UPDATE**: Problema raiz identificado e corrigido:
+  - **Erro específico identificado**: "The UPDATE permission was denied on the object 'promocoes'"
+  - **Causa raiz**: Usuário `promocao_user` não tem permissão UPDATE no banco
+  - **Solução implementada**: Removidas operações UPDATE, adaptada lógica para SELECT e INSERT
+  - **Tratamento de duplicatas**: Via INSERT com tratamento de erro de duplicata
+  - **Lógica simplificada**: Códigos já registrados retornam sucesso sem atualização
+  - **Status**: ✅ Erro 500 resolvido, sistema funcionando com permissões disponíveis
+  - **Commit e Push**: Alterações enviadas para o repositório Git com commit `91beb64` - "fix: corrigir erro de permissão UPDATE no banco de dados"

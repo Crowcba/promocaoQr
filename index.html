@@ -271,83 +271,46 @@
             const params = new URLSearchParams(window.location.search);
             const urlPath = window.location.pathname.split('/').filter(part => part.length > 0);
             
-            console.log('=== EXTRAÇÃO DE PARÂMETROS ===');
-            console.log('URL completa:', window.location.href);
-            console.log('Pathname:', window.location.pathname);
-            console.log('Search params:', window.location.search);
-            console.log('URL Path parts:', urlPath);
-            console.log('Query params:', Object.fromEntries(params.entries()));
-            
             let promotor = urlPath.length > 0 ? urlPath[0] : params.get('promotor');
             let codigo = urlPath.length > 1 ? urlPath[1] : params.get('codigo');
-            
-            console.log('Promotor extraído:', promotor);
-            console.log('Código extraído:', codigo);
 
             if (!promotor || !codigo) {
-                console.error('❌ Parâmetros incompletos');
                 showError('Informações incompletas na URL. Verifique o link recebido.');
                 return;
             }
 
-            console.log('✅ Parâmetros válidos encontrados');
             codigoDisplay.textContent = codigo;
             
             validateCode(promotor, codigo);
 
             async function validateCode(promotor, codigo) {
-                console.log('=== INÍCIO DA VALIDAÇÃO ===');
-                console.log('Promotor:', promotor);
-                console.log('Código:', codigo);
-                console.log('URL da API:', '/api/validate-code');
-                
-                const requestData = { promotor, code: codigo };
-                console.log('Dados da requisição:', requestData);
-                
                 try {
-                    console.log('Enviando requisição...');
                     const response = await fetch('/api/validate-code', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(requestData),
+                        body: JSON.stringify({ promotor, code: codigo }),
                     });
-
-                    console.log('Resposta recebida:');
-                    console.log('Status:', response.status);
-                    console.log('Status Text:', response.statusText);
-                    console.log('Headers:', Object.fromEntries(response.headers.entries()));
 
                     let result;
                     try {
                         result = await response.json();
-                        console.log('Dados da resposta:', result);
                     } catch (jsonError) {
-                        console.error('Erro ao fazer parse do JSON:', jsonError);
-                        const textResponse = await response.text();
-                        console.log('Resposta como texto:', textResponse);
                         showError('Erro no formato da resposta do servidor.');
                         return;
                     }
 
                     if (response.ok) {
-                        console.log('✅ Sucesso na validação');
                         showSuccess(result.message || 'Código válido e registrado!');
                         btnSite.style.pointerEvents = 'auto';
                         btnSite.style.opacity = '1';
                     } else {
-                        console.error('❌ Erro na validação:', result);
                         showError(result.message || 'Erro ao validar o código.');
                     }
                 } catch (error) {
-                    console.error('=== ERRO DETALHADO ===');
-                    console.error('Tipo do erro:', error.constructor.name);
-                    console.error('Mensagem do erro:', error.message);
-                    console.error('Stack trace:', error.stack);
                     showError('Erro de comunicação com o servidor. Tente novamente.');
                 } finally {
-                    console.log('=== FIM DA VALIDAÇÃO ===');
                     loading.classList.remove('show');
                 }
             }

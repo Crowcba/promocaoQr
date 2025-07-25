@@ -22,23 +22,49 @@ let pool;
 
 async function connectToDatabase() {
     if (pool && pool.connected) {
+        console.log('Usando pool de conexão existente');
         return pool;
     }
     try {
-        console.log('Conectando ao banco de dados...');
+        console.log('=== TENTATIVA DE CONEXÃO COM BANCO ===');
         console.log('Configuração do banco:', {
             server: netlifyConfig.server,
             port: netlifyConfig.port,
             database: netlifyConfig.database,
-            user: netlifyConfig.user
+            user: netlifyConfig.user,
+            connectionTimeout: netlifyConfig.connectionTimeout,
+            requestTimeout: netlifyConfig.requestTimeout
         });
         
+        console.log('Criando nova conexão...');
         pool = await new sql.ConnectionPool(netlifyConfig).connect();
         console.log('Conectado ao SQL Server com sucesso.');
+        console.log('Pool criado:', pool.connected ? 'Conectado' : 'Desconectado');
         return pool;
     } catch (err) {
-        console.error('Erro detalhado ao conectar com o banco de dados:', err);
+        console.error('=== ERRO NA CONEXÃO COM BANCO ===');
+        console.error('Tipo do erro:', err.constructor.name);
+        console.error('Mensagem do erro:', err.message);
         console.error('Stack trace:', err.stack);
+        console.error('Código do erro:', err.code);
+        console.error('Estado do erro:', err.state);
+        console.error('Classe do erro:', err.class);
+        console.error('Linha do erro:', err.lineNumber);
+        console.error('Procedimento do erro:', err.procName);
+        
+        // Logs específicos para diferentes tipos de erro
+        if (err.code === 'ECONNREFUSED') {
+            console.error('ERRO: Conexão recusada pelo servidor');
+        } else if (err.code === 'ETIMEDOUT') {
+            console.error('ERRO: Timeout na conexão');
+        } else if (err.code === 'ELOGIN') {
+            console.error('ERRO: Falha na autenticação');
+        } else if (err.code === 'EALREADYCONNECTED') {
+            console.error('ERRO: Já existe uma conexão ativa');
+        } else if (err.code === 'ENOTFOUND') {
+            console.error('ERRO: Servidor não encontrado');
+        }
+        
         throw err;
     }
 }
@@ -65,13 +91,20 @@ app.get('/api/health', (req, res) => {
 });
 
 app.post('/api/validate-code', async (req, res) => {
-    console.log('Requisição recebida em /api/validate-code');
+    console.log('=== INÍCIO DA REQUISIÇÃO /api/validate-code ===');
+    console.log('Timestamp:', new Date().toISOString());
+    console.log('Headers:', req.headers);
     console.log('Body da requisição:', req.body);
+    console.log('Content-Type:', req.get('Content-Type'));
     
     try {
+        console.log('Tentando conectar ao banco de dados...');
         await connectToDatabase();
+        console.log('Conexão com banco estabelecida com sucesso');
         
         const { promotor, code: codigo } = req.body;
+
+        console.log('Dados extraídos:', { promotor, codigo });
 
         if (!promotor || !codigo) {
             console.log('Dados inválidos recebidos:', { promotor, codigo });
@@ -84,21 +117,27 @@ app.post('/api/validate-code', async (req, res) => {
         console.log('Validando código:', { promotor, codigo });
 
         const request = pool.request();
+        console.log('Executando consulta SELECT...');
+        
         // Verifica se o código já existe para evitar duplicatas
         let result = await request
             .input('codigo', sql.NVarChar, codigo)
             .query('SELECT * FROM promocoes WHERE codigo = @codigo');
 
-        console.log('Resultado da consulta:', result.recordset);
+        console.log('Resultado da consulta SELECT:', result.recordset);
+        console.log('Número de registros encontrados:', result.recordset.length);
 
         if (result.recordset.length > 0) {
             // Se o código já existe, verifica se já foi clicado
             const record = result.recordset[0];
+            console.log('Registro encontrado:', record);
+            
             if (record.clicou) {
                 console.log('Código já utilizado:', codigo);
                 return res.status(200).json({ message: 'Este código já foi utilizado!' });
             } else {
                  // Atualiza o registro existente para marcar como clicado
+                console.log('Atualizando registro existente...');
                 await pool.request()
                     .input('codigo', sql.NVarChar, codigo)
                     .query('UPDATE promocoes SET clicou = 1 WHERE codigo = @codigo');
@@ -107,6 +146,7 @@ app.post('/api/validate-code', async (req, res) => {
             }
         } else {
             // Se o código não existe, insere um novo registro
+            console.log('Inserindo novo registro...');
             await pool.request()
                 .input('promotor', sql.NVarChar, promotor)
                 .input('codigo', sql.NVarChar, codigo)
@@ -115,12 +155,40 @@ app.post('/api/validate-code', async (req, res) => {
             return res.status(201).json({ message: 'Código promocional registrado com sucesso!' });
         }
     } catch (err) {
-        console.error('Erro detalhado no banco de dados:', err);
-        console.error('Stack trace:', err.stack);
+        console.error('=== ERRO DETALHADO ===');
+        console.error('Tipo do erro:', err.constructor.name);
+        console.error('Mensagem do erro:', err.message);
+        console.error('Stack trace completo:', err.stack);
+        console.error('Código do erro:', err.code);
+        console.error('Estado do erro:', err.state);
+        console.error('Classe do erro:', err.class);
+        console.error('Linha do erro:', err.lineNumber);
+        console.error('Procedimento do erro:', err.procName);
+        
+        // Verificar se é um erro de conexão
+        if (err.code === 'ECONNREFUSED' || err.code === 'ETIMEDOUT') {
+            console.error('ERRO DE CONEXÃO COM BANCO DE DADOS');
+            return res.status(500).json({ 
+                message: 'Erro de conexão com o banco de dados. Tente novamente em alguns instantes.',
+                error: 'Database connection error'
+            });
+        }
+        
+        // Verificar se é um erro de autenticação
+        if (err.code === 'ELOGIN' || err.code === 'EALREADYCONNECTED') {
+            console.error('ERRO DE AUTENTICAÇÃO NO BANCO DE DADOS');
+            return res.status(500).json({ 
+                message: 'Erro de autenticação no banco de dados.',
+                error: 'Database authentication error'
+            });
+        }
+        
         return res.status(500).json({ 
             message: 'Erro interno do servidor.',
-            error: process.env.NODE_ENV === 'development' ? err.message : 'Erro de conexão com banco de dados'
+            error: process.env.NODE_ENV === 'development' ? err.message : 'Erro de processamento'
         });
+    } finally {
+        console.log('=== FIM DA REQUISIÇÃO /api/validate-code ===');
     }
 });
 

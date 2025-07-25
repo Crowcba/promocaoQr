@@ -95,8 +95,12 @@ app.post('/api/validate-code', async (req, res) => {
             if (record.clicou) {
                 return res.status(200).json({ message: 'Este código já foi utilizado!' });
             } else {
-                // Como não temos permissão UPDATE, vamos retornar sucesso sem atualizar
-                return res.status(200).json({ message: 'Código promocional já registrado!' });
+                // Atualiza o registro para marcar como clicado
+                await pool.request()
+                    .input('codigo', sql.NVarChar, codigo)
+                    .query('UPDATE promocoes SET clicou = 1 WHERE codigo = @codigo');
+                
+                return res.status(200).json({ message: 'Código promocional validado com sucesso!' });
             }
         } else {
             // Se o código não existe, insere um novo registro
@@ -104,8 +108,9 @@ app.post('/api/validate-code', async (req, res) => {
                 await pool.request()
                     .input('promotor', sql.NVarChar, promotor)
                     .input('codigo', sql.NVarChar, codigo)
-                    .query('INSERT INTO promocoes (promotor, codigo) VALUES (@promotor, @codigo)');
-                return res.status(201).json({ message: 'Código promocional registrado com sucesso!' });
+                    .query('INSERT INTO promocoes (promotor, codigo, clicou) VALUES (@promotor, @codigo, 1)');
+                
+                return res.status(201).json({ message: 'Código promocional registrado e validado com sucesso!' });
             } catch (insertErr) {
                 // Se der erro de duplicata, significa que o código já existe
                 if (insertErr.code === 'EREQUEST' && insertErr.message.includes('duplicate')) {

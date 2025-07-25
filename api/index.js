@@ -68,6 +68,7 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Rota para validar código (primeira entrada no site)
 app.post('/api/validate-code', async (req, res) => {
     try {
         await connectToDatabase();
@@ -95,30 +96,112 @@ app.post('/api/validate-code', async (req, res) => {
             if (record.clicou) {
                 return res.status(200).json({ message: 'Este código já foi utilizado!' });
             } else {
-                // Atualiza o registro para marcar como clicado
-                await pool.request()
-                    .input('codigo', sql.NVarChar, codigo)
-                    .query('UPDATE promocoes SET clicou = 1 WHERE codigo = @codigo');
-                
-                return res.status(200).json({ message: 'Código promocional validado com sucesso!' });
+                // Código existe mas não foi clicado ainda
+                return res.status(200).json({ 
+                    message: 'Código promocional válido! Clique no link para acessar o site.',
+                    canClick: true
+                });
             }
         } else {
-            // Se o código não existe, insere um novo registro
+            // Se o código não existe, insere um novo registro (clicou = 0)
             try {
                 await pool.request()
                     .input('promotor', sql.NVarChar, promotor)
                     .input('codigo', sql.NVarChar, codigo)
-                    .query('INSERT INTO promocoes (promotor, codigo, clicou) VALUES (@promotor, @codigo, 1)');
+                    .input('clicou', sql.Bit, 0)
+                    .query('INSERT INTO promocoes (promotor, codigo, clicou) VALUES (@promotor, @codigo, @clicou)');
                 
-                return res.status(201).json({ message: 'Código promocional registrado e validado com sucesso!' });
+                return res.status(201).json({ 
+                    message: 'Código promocional registrado com sucesso! Clique no link para acessar o site.',
+                    canClick: true
+                });
             } catch (insertErr) {
                 // Se der erro de duplicata, significa que o código já existe
                 if (insertErr.code === 'EREQUEST' && insertErr.message.includes('duplicate')) {
-                    return res.status(200).json({ message: 'Código promocional já registrado!' });
+                    return res.status(200).json({ 
+                        message: 'Código promocional já registrado! Clique no link para acessar o site.',
+                        canClick: true
+                    });
                 }
                 throw insertErr;
             }
         }
+    } catch (err) {
+        // Verificar se é um erro de conexão
+        if (err.code === 'ECONNREFUSED' || err.code === 'ETIMEDOUT') {
+            return res.status(500).json({ 
+                message: 'Erro de conexão com o banco de dados. Tente novamente em alguns instantes.',
+                error: 'Database connection error'
+            });
+        }
+        
+        // Verificar se é um erro de autenticação
+        if (err.code === 'ELOGIN' || err.code === 'EALREADYCONNECTED') {
+            return res.status(500).json({ 
+                message: 'Erro de autenticação no banco de dados.',
+                error: 'Database authentication error'
+            });
+        }
+        
+        // Verificar se é um erro de SQL
+        if (err.code === 'EREQUEST' || err.code === 'ESQL') {
+            return res.status(500).json({ 
+                message: 'Erro na consulta ao banco de dados.',
+                error: 'SQL error'
+            });
+        }
+        
+        return res.status(500).json({ 
+            message: 'Erro interno do servidor.',
+            error: 'Erro de processamento'
+        });
+    }
+});
+
+// Rota para marcar como clicado (quando clica no link da TecnoVida)
+app.post('/api/mark-clicked', async (req, res) => {
+    try {
+        await connectToDatabase();
+        
+        const { code: codigo } = req.body;
+
+        if (!codigo) {
+            return res.status(400).json({ 
+                message: 'Código não fornecido.',
+                received: { codigo }
+            });
+        }
+
+        const request = pool.request();
+        
+        // Verifica se o código existe
+        let result = await request
+            .input('codigo', sql.NVarChar, codigo)
+            .query('SELECT * FROM promocoes WHERE codigo = @codigo');
+
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ 
+                message: 'Código não encontrado no sistema.'
+            });
+        }
+
+        const record = result.recordset[0];
+        
+        if (record.clicou) {
+            return res.status(200).json({ 
+                message: 'Este código já foi utilizado!'
+            });
+        }
+
+        // Atualiza o registro para marcar como clicado
+        await pool.request()
+            .input('codigo', sql.NVarChar, codigo)
+            .query('UPDATE promocoes SET clicou = 1 WHERE codigo = @codigo');
+        
+        return res.status(200).json({ 
+            message: 'Código marcado como utilizado com sucesso!'
+        });
+
     } catch (err) {
         // Verificar se é um erro de conexão
         if (err.code === 'ECONNREFUSED' || err.code === 'ETIMEDOUT') {

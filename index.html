@@ -3,343 +3,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Promoção - Tecnovida</title>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700&display=swap"></noscript>
+    <title>Promoção TecnoVida</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Montserrat', 'Segoe UI', sans-serif;
         }
 
         body {
-            background-color: #f8f9fa;
-            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            color: #444;
-        }
-
-        .header {
-            background-color: #ffffff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 15px 0;
-            text-align: center;
-        }
-
-        .logo-container {
-            max-width: 180px;
-            margin: 0 auto;
-        }
-
-        .logo-container img {
-            width: 100%;
-            height: auto;
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             padding: 20px;
         }
 
         .container {
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            text-align: center;
             max-width: 500px;
             width: 100%;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
         }
 
         h1 {
-            margin-bottom: 25px;
-            font-size: 24px;
-            color: #006633;
-            font-weight: 600;
-        }
-
-        .codigo-container {
-            background-color: #f2f7f5;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            border: 1px solid #e0e0e0;
-        }
-        .btn-copy {
-            background-color: #cccccc;
             color: #333;
-            margin-left: 10px;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 6px;
-            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 28px;
         }
 
-        .btn-copy:hover {
-            background-color: #bbbbbb;
-        }
-
-        .btn-icon-copy {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            margin-left: 10px;
-            color: #006633;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s ease, color 0.2s ease;
-        }
-
-        .btn-icon-copy:hover {
-            color: #004d26;
-            transform: scale(1.1);
-        }
-
-        .btn-icon-copy svg {
-            width: 24px;
-            height: 24px;
-        }
-
-        .codigo-value {
-            font-size: 26px;
-            font-weight: bold;
-            color: #006633;
-            letter-spacing: 1px;
-        }
-
-        .codigo-label {
-            font-size: 14px;
+        .subtitle {
             color: #666;
-            margin-bottom: 5px;
+            margin-bottom: 30px;
+            font-size: 16px;
         }
 
-        .btn {
-            background-color: #006633;
+        .code-display {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .btn-site {
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 14px 28px;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            box-shadow: 0 3px 10px rgba(0, 102, 51, 0.2);
-            display: inline-block;
+            transition: all 0.3s ease;
             text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+            opacity: 0.5;
+            pointer-events: none;
         }
 
-        .btn:hover {
-            background-color: #005529;
+        .btn-site:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
 
-        .status {
-            margin-top: 20px;
-            font-size: 16px;
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-
-        .status.show {
+        .btn-site.active {
             opacity: 1;
+            pointer-events: auto;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
         .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-
-        .loading.show {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(0, 102, 51, 0.2);
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
             border-radius: 50%;
-            border-top-color: #006633;
             animation: spin 1s linear infinite;
-        }
-
-        .footer {
-            background-color: #006633;
-            color: white;
-            text-align: center;
-            padding: 15px;
-            font-size: 14px;
-        }
-
-        .promo-banner {
-            background-color: #ffeb3b;
-            color: #333;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            font-weight: bold;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-            100% { transform: scale(1); }
+            margin: 20px auto;
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        @media (max-width: 400px) {
-            .container {
-                padding: 20px 15px;
-            }
-            h1 {
-                font-size: 22px;
-            }
-            .codigo-value {
-                font-size: 22px;
-            }
+        .loading.show {
+            display: block;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo-container">
-            <img src="https://images.tcdn.com.br/img/img_prod/1315568/1714419417_logo.png" alt="Logo Tecnovida" style="max-height: 90px;">
+    <div class="container">
+        <div class="logo">TV</div>
+        <h1>Promoção TecnoVida</h1>
+        <p class="subtitle">Seu código promocional foi validado!</p>
+        
+        <div class="code-display" id="codeDisplay">Carregando...</div>
+        
+        <div class="loading" id="loading"></div>
+        
+        <div id="messageContainer"></div>
+        
+        <a href="https://tecnovida.com.br" 
+           class="btn-site" 
+           id="btnSite" 
+           target="_blank"
+           rel="noopener noreferrer">
+            Acessar Site TecnoVida
+        </a>
+        
+        <div class="footer">
+            © 2024 TecnoVida - Todos os direitos reservados
         </div>
-    </div>
-
-    <div class="main-content">
-        <div class="container">
-            <div class="promo-banner">Promoção Exclusiva!</div>
-            <h1>Promoção</h1>
-            <div class="codigo-container">
-                <div class="codigo-label">Copie o seu código promocional:</div>
-                <div class="codigo-value" id="codigo-display">Carregando...</div>
-                <button class="btn-icon-copy" onclick="copiarCodigo()" aria-label="Copiar código">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 
-                        1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                    </svg>
-                </button>
-            </div>
-            <a href="https://tecnovida.com.br" class="btn" id="btn-site" style="pointer-events: none; opacity: 0.6;">Acessar Tecnovida</a>
-            <div class="status" id="status-message"></div>
-        </div>
-    </div>
-
-    <div class="footer">
-        &copy; 2025 Tecnovida - Todos os direitos reservados
-    </div>
-
-    <div class="loading" id="loading-indicator">
-        <div class="spinner"></div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const loading = document.getElementById('loading-indicator');
-            const statusMessage = document.getElementById('status-message');
-            const codigoDisplay = document.getElementById('codigo-display');
-            const btnSite = document.getElementById('btn-site');
+        const codeDisplay = document.getElementById('codeDisplay');
+        const btnSite = document.getElementById('btnSite');
+        const loading = document.getElementById('loading');
+        const messageContainer = document.getElementById('messageContainer');
 
+        function showMessage(message, type = 'success') {
+            messageContainer.innerHTML = `<div class="message ${type}">${message}</div>`;
+        }
+
+        function clearMessage() {
+            messageContainer.innerHTML = '';
+        }
+
+        // Extrair parâmetros da URL
+        const params = new URLSearchParams(window.location.search);
+        const urlPath = window.location.pathname.split('/').filter(part => part.length > 0);
+        
+        let promotor = urlPath.length > 0 ? urlPath[0] : params.get('promotor');
+        let codigo = urlPath.length > 1 ? urlPath[1] : params.get('codigo');
+
+        if (!promotor || !codigo) {
+            showMessage('Informações incompletas na URL. Verifique o link recebido.', 'error');
+            return;
+        }
+
+        codeDisplay.textContent = codigo;
+        
+        // Primeira etapa: Validar código (INSERT se novo)
+        validateCode(promotor, codigo);
+
+        async function validateCode(promotor, codigo) {
             loading.classList.add('show');
-
-            const params = new URLSearchParams(window.location.search);
-            const urlPath = window.location.pathname.split('/').filter(part => part.length > 0);
+            clearMessage();
             
-            let promotor = urlPath.length > 0 ? urlPath[0] : params.get('promotor');
-            let codigo = urlPath.length > 1 ? urlPath[1] : params.get('codigo');
+            try {
+                const response = await fetch('/api/validate-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ promotor, code: codigo }),
+                });
 
-            if (!promotor || !codigo) {
-                showError('Informações incompletas na URL. Verifique o link recebido.');
-                return;
-            }
-
-            codigoDisplay.textContent = codigo;
-            
-            validateCode(promotor, codigo);
-
-            async function validateCode(promotor, codigo) {
+                let result;
                 try {
-                    const response = await fetch('/api/validate-code', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ promotor, code: codigo }),
-                    });
-
-                    let result;
-                    try {
-                        result = await response.json();
-                    } catch (jsonError) {
-                        showError('Erro no formato da resposta do servidor.');
-                        return;
-                    }
-
-                    if (response.ok) {
-                        showSuccess(result.message || 'Código válido e registrado!');
-                        btnSite.style.pointerEvents = 'auto';
-                        btnSite.style.opacity = '1';
-                    } else {
-                        showError(result.message || 'Erro ao validar o código.');
-                    }
-                } catch (error) {
-                    showError('Erro de comunicação com o servidor. Tente novamente.');
-                } finally {
-                    loading.classList.remove('show');
+                    result = await response.json();
+                } catch (jsonError) {
+                    showMessage('Erro no formato da resposta do servidor.', 'error');
+                    return;
                 }
-            }
 
-            function showSuccess(message) {
-                statusMessage.textContent = message;
-                statusMessage.style.color = '#006633';
-                statusMessage.classList.add('show');
-            }
-
-            function showError(message) {
-                statusMessage.textContent = message;
-                statusMessage.style.color = '#cc0000';
-                statusMessage.classList.add('show');
+                if (response.ok) {
+                    showMessage(result.message, 'success');
+                    
+                    // Se o código é válido e pode ser clicado, ativa o botão
+                    if (result.canClick) {
+                        btnSite.classList.add('active');
+                    }
+                } else {
+                    showMessage(result.message || 'Erro ao validar o código.', 'error');
+                }
+            } catch (error) {
+                showMessage('Erro de comunicação com o servidor. Tente novamente.', 'error');
+            } finally {
                 loading.classList.remove('show');
             }
-        });
-
-        function copiarCodigo() {
-            const codigo = document.getElementById('codigo-display').textContent;
-            navigator.clipboard.writeText(codigo).then(() => {
-                const statusMessage = document.getElementById('status-message');
-                statusMessage.textContent = 'Código copiado com sucesso!';
-                statusMessage.style.color = '#006633';
-                statusMessage.classList.add('show');
-            }, () => {
-                alert('Erro ao copiar o código.');
-            });
         }
+
+        // Segunda etapa: Marcar como clicado quando clicar no link
+        btnSite.addEventListener('click', async function(e) {
+            // Primeiro marca como clicado
+            try {
+                const response = await fetch('/api/mark-clicked', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ code: codigo }),
+                });
+
+                let result;
+                try {
+                    result = await response.json();
+                } catch (jsonError) {
+                    console.error('Erro ao processar resposta do mark-clicked');
+                }
+
+                if (response.ok) {
+                    // Se marcou com sucesso, desabilita o botão
+                    btnSite.classList.remove('active');
+                    btnSite.style.opacity = '0.5';
+                    btnSite.style.pointerEvents = 'none';
+                    showMessage('Código utilizado com sucesso! Redirecionando...', 'success');
+                } else {
+                    showMessage(result.message || 'Erro ao marcar código como utilizado.', 'error');
+                    // Se deu erro, não deixa clicar no link
+                    e.preventDefault();
+                    return;
+                }
+            } catch (error) {
+                showMessage('Erro ao marcar código como utilizado.', 'error');
+                e.preventDefault();
+                return;
+            }
+            
+            // Se chegou até aqui, permite o redirecionamento
+            // O link já tem target="_blank", então abrirá em nova aba
+        });
     </script>
 </body>
 </html>

@@ -48,3 +48,10 @@
   - **Adicionados logs de ambiente**: Verificação de configuração no startup da aplicação
   - **Remoção de configurações antigas**: Limpeza de possíveis configurações do Supabase
   - **Commit e Push**: Alterações enviadas para o repositório Git com commit `c714adf` - "fix: configurar Netlify para SQL Server"
+
+- **Verificação de Tentativas de Conexão com Supabase**: Confirmação de que não há referências ao Supabase:
+  - **Criado script `check-supabase.js`**: Verificação completa de arquivos e variáveis de ambiente
+  - **Executada verificação local**: Confirmado que não há referências ao Supabase no código
+  - **Adicionados logs de verificação**: Detecção automática de variáveis Supabase no ambiente
+  - **Resultado**: ✅ Nenhuma tentativa de conexão com Supabase encontrada
+  - **Commit e Push**: Alterações enviadas para o repositório Git com commit `224527e` - "feat: adicionar verificação de tentativas de conexão com Supabase"

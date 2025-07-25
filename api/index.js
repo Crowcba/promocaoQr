@@ -12,32 +12,6 @@ console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('DB_TYPE:', process.env.DB_TYPE);
 console.log('Ambiente detectado:', process.env.NODE_ENV === 'production' ? 'PRODUÇÃO' : 'DESENVOLVIMENTO');
 
-// Verificação de variáveis de ambiente do Supabase
-console.log('=== VERIFICAÇÃO DE VARIÁVEIS SUPABASE ===');
-const supabaseVars = [
-    'SUPABASE_URL',
-    'SUPABASE_ANON_KEY', 
-    'SUPABASE_SERVICE_ROLE_KEY',
-    'REACT_APP_SUPABASE_URL',
-    'REACT_APP_SUPABASE_ANON_KEY'
-];
-
-supabaseVars.forEach(varName => {
-    if (process.env[varName]) {
-        console.error(`⚠️  VARIÁVEL SUPABASE DETECTADA: ${varName} = ${process.env[varName].substring(0, 10)}...`);
-    } else {
-        console.log(`✅ Variável ${varName} não encontrada (OK)`);
-    }
-});
-
-// Verificação de todas as variáveis de ambiente
-console.log('=== TODAS AS VARIÁVEIS DE AMBIENTE ===');
-Object.keys(process.env).forEach(key => {
-    if (key.includes('SUPABASE') || key.includes('supabase')) {
-        console.error(`⚠️  VARIÁVEL SUPABASE ENCONTRADA: ${key}`);
-    }
-});
-
 console.log('=== FIM DA VERIFICAÇÃO DE AMBIENTE ===');
 
 // Configuração específica para Netlify

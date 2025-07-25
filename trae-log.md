@@ -63,3 +63,11 @@
   - **Verificação do painel Netlify**: Confirmado que não há variáveis de ambiente configuradas
   - **Status**: ✅ Projeto 100% configurado para SQL Server, sem referências ao Supabase
   - **Commit e Push**: Alterações enviadas para o repositório Git com commit `5152df4` - "clean: remover arquivo check-supabase.js e logs de verificação"
+
+- **Debug do Erro 500 Persistente**: Investigação detalhada do problema:
+  - **Teste direto da API**: Confirmado que a API funciona perfeitamente quando testada via curl
+  - **Problema identificado**: Erro 500 ocorre apenas quando chamado pelo frontend
+  - **Implementação de logs detalhados no frontend**: Adicionados logs para debug de requisições
+  - **Melhoria no tratamento de erros**: Logs de extração de parâmetros da URL e validação
+  - **Debug de requisições e respostas**: Logs completos para identificar o problema específico
+  - **Commit e Push**: Alterações enviadas para o repositório Git com commit `475c20a` - "feat: adicionar logs detalhados no frontend para debug do erro 500"

@@ -86,14 +86,72 @@ async function connectToDatabase() {
 
 // Middleware para CORS
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    console.log('=== CORS MIDDLEWARE ===');
+    console.log('Origin:', req.headers.origin);
+    console.log('Method:', req.method);
+    console.log('Headers:', req.headers);
+    
+    // Configuração mais específica de CORS
+    const allowedOrigins = [
+        'https://promocaoqr.netlify.app',
+        'http://localhost:3000',
+        'http://localhost:8080',
+        'http://127.0.0.1:5500'
+    ];
+    
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+    } else {
+        res.header('Access-Control-Allow-Origin', '*');
+    }
+    
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
+    // Log dos headers CORS configurados
+    console.log('CORS Headers configurados:', {
+        'Access-Control-Allow-Origin': res.getHeader('Access-Control-Allow-Origin'),
+        'Access-Control-Allow-Headers': res.getHeader('Access-Control-Allow-Headers'),
+        'Access-Control-Allow-Methods': res.getHeader('Access-Control-Allow-Methods')
+    });
+    
     if (req.method === 'OPTIONS') {
+        console.log('Requisição OPTIONS - enviando 200');
         res.sendStatus(200);
     } else {
+        console.log('Requisição não-OPTIONS - continuando...');
         next();
     }
+});
+
+// Middleware de tratamento de erros global
+app.use((err, req, res, next) => {
+    console.error('=== ERRO GLOBAL CAPTURADO ===');
+    console.error('URL:', req.url);
+    console.error('Method:', req.method);
+    console.error('Headers:', req.headers);
+    console.error('Body:', req.body);
+    console.error('Erro:', err);
+    console.error('Stack:', err.stack);
+    
+    // Garantir que os headers CORS estejam presentes mesmo em caso de erro
+    const origin = req.headers.origin;
+    if (origin) {
+        res.header('Access-Control-Allow-Origin', origin);
+    } else {
+        res.header('Access-Control-Allow-Origin', '*');
+    }
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    
+    // Retornar erro 500 com mensagem adequada
+    res.status(500).json({
+        message: 'Erro interno do servidor',
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Erro de processamento',
+        timestamp: new Date().toISOString()
+    });
 });
 
 // Rota de teste para verificar se a API está funcionando

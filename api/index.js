@@ -82,42 +82,27 @@ app.post('/api/validate-code', async (req, res) => {
             });
         }
 
-        const request = pool.request();
-        
-        // Verifica se o código já existe
-        let result = await request
-            .input('codigo', sql.NVarChar, codigo)
-            .query('SELECT * FROM promocoes WHERE codigo = @codigo');
-
-        if (result.recordset.length > 0) {
-            // Se o código já existe, sempre permite o uso
-            return res.status(200).json({ 
-                message: 'Código promocional válido! Clique no link para acessar o site.',
+        // Sempre tenta inserir um novo registro
+        try {
+            await pool.request()
+                .input('promotor', sql.NVarChar, promotor)
+                .input('codigo', sql.NVarChar, codigo)
+                .input('clicou', sql.Bit, 0)
+                .query('INSERT INTO promocoes (promotor, codigo, clicou) VALUES (@promotor, @codigo, @clicou)');
+            
+            return res.status(201).json({ 
+                message: 'Código promocional registrado com sucesso! Clique no link para acessar o site.',
                 canClick: true
             });
-        } else {
-            // Se o código não existe, insere um novo registro (clicou = 0)
-            try {
-                await pool.request()
-                    .input('promotor', sql.NVarChar, promotor)
-                    .input('codigo', sql.NVarChar, codigo)
-                    .input('clicou', sql.Bit, 0)
-                    .query('INSERT INTO promocoes (promotor, codigo, clicou) VALUES (@promotor, @codigo, @clicou)');
-                
-                return res.status(201).json({ 
-                    message: 'Código promocional registrado com sucesso! Clique no link para acessar o site.',
+        } catch (insertErr) {
+            // Se der erro de duplicata, significa que o código já existe
+            if (insertErr.code === 'EREQUEST' && insertErr.message.includes('duplicate')) {
+                return res.status(200).json({ 
+                    message: 'Código promocional já registrado! Clique no link para acessar o site.',
                     canClick: true
                 });
-            } catch (insertErr) {
-                // Se der erro de duplicata, significa que o código já existe
-                if (insertErr.code === 'EREQUEST' && insertErr.message.includes('duplicate')) {
-                    return res.status(200).json({ 
-                        message: 'Código promocional já registrado! Clique no link para acessar o site.',
-                        canClick: true
-                    });
-                }
-                throw insertErr;
             }
+            throw insertErr;
         }
     } catch (err) {
         // Verificar se é um erro de conexão
@@ -178,7 +163,7 @@ app.post('/api/mark-clicked', async (req, res) => {
             });
         }
 
-        // Sempre atualiza o registro para marcar como clicado (permite múltiplos usos)
+        // Atualiza o registro específico para marcar como clicado
         await pool.request()
             .input('codigo', sql.NVarChar, codigo)
             .query('UPDATE promocoes SET clicou = 1 WHERE codigo = @codigo');

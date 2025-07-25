@@ -305,16 +305,22 @@
                     if (response.ok) {
                         showSuccess(result.message);
                         
-                        // Se o código é válido e pode ser clicado, ativa o botão
+                        // Só ativa o botão se a validação foi bem-sucedida
                         if (result.canClick) {
                             btnSite.style.pointerEvents = 'auto';
                             btnSite.style.opacity = '1';
                         }
                     } else {
                         showError(result.message || 'Erro ao validar o código.');
+                        // Se deu erro na validação, mantém o botão desabilitado
+                        btnSite.style.pointerEvents = 'none';
+                        btnSite.style.opacity = '0.6';
                     }
                 } catch (error) {
                     showError('Erro de comunicação com o servidor. Tente novamente.');
+                    // Se deu erro de comunicação, mantém o botão desabilitado
+                    btnSite.style.pointerEvents = 'none';
+                    btnSite.style.opacity = '0.6';
                 } finally {
                     loading.classList.remove('show');
                 }

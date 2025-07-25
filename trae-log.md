@@ -41,3 +41,10 @@
   - **Implementação de logs detalhados**: Adicionados logs extensivos para identificar o problema específico
   - **Melhoria no tratamento de erros**: Categorização de diferentes tipos de erro (conexão, autenticação, timeout)
   - **Commit e Push**: Alterações enviadas para o repositório Git com commit `e5152de` - "feat: adicionar logs detalhados para debug do erro 500"
+
+- **Configuração do Netlify para SQL Server**: Identificado problema de configuração do ambiente:
+  - **Atualizado `netlify.toml`**: Adicionadas variáveis de ambiente específicas para SQL Server
+  - **Criado `NETLIFY_SETUP.md`**: Instruções detalhadas para configurar o Netlify corretamente
+  - **Adicionados logs de ambiente**: Verificação de configuração no startup da aplicação
+  - **Remoção de configurações antigas**: Limpeza de possíveis configurações do Supabase
+  - **Commit e Push**: Alterações enviadas para o repositório Git com commit `c714adf` - "fix: configurar Netlify para SQL Server"

@@ -363,12 +363,15 @@
                     }
 
                     if (response.ok) {
-                        // Se marcou com sucesso, desabilita o botão
-                        btnSite.style.pointerEvents = 'none';
-                        btnSite.style.opacity = '0.6';
+                        // Se marcou com sucesso, mostra mensagem mas mantém botão ativo
                         statusMessage.textContent = 'Código utilizado com sucesso! Redirecionando...';
                         statusMessage.style.color = '#006633';
                         statusMessage.classList.add('show');
+                        
+                        // Remove a mensagem após 3 segundos
+                        setTimeout(() => {
+                            statusMessage.classList.remove('show');
+                        }, 3000);
                     } else {
                         statusMessage.textContent = result.message || 'Erro ao marcar código como utilizado.';
                         statusMessage.style.color = '#cc0000';

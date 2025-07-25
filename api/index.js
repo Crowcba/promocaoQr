@@ -90,18 +90,11 @@ app.post('/api/validate-code', async (req, res) => {
             .query('SELECT * FROM promocoes WHERE codigo = @codigo');
 
         if (result.recordset.length > 0) {
-            // Se o código já existe, verifica se já foi clicado
-            const record = result.recordset[0];
-            
-            if (record.clicou) {
-                return res.status(200).json({ message: 'Este código já foi utilizado!' });
-            } else {
-                // Código existe mas não foi clicado ainda
-                return res.status(200).json({ 
-                    message: 'Código promocional válido! Clique no link para acessar o site.',
-                    canClick: true
-                });
-            }
+            // Se o código já existe, sempre permite o uso
+            return res.status(200).json({ 
+                message: 'Código promocional válido! Clique no link para acessar o site.',
+                canClick: true
+            });
         } else {
             // Se o código não existe, insere um novo registro (clicou = 0)
             try {
@@ -185,21 +178,13 @@ app.post('/api/mark-clicked', async (req, res) => {
             });
         }
 
-        const record = result.recordset[0];
-        
-        if (record.clicou) {
-            return res.status(200).json({ 
-                message: 'Este código já foi utilizado!'
-            });
-        }
-
-        // Atualiza o registro para marcar como clicado
+        // Sempre atualiza o registro para marcar como clicado (permite múltiplos usos)
         await pool.request()
             .input('codigo', sql.NVarChar, codigo)
             .query('UPDATE promocoes SET clicou = 1 WHERE codigo = @codigo');
         
         return res.status(200).json({ 
-            message: 'Código marcado como utilizado com sucesso!'
+            message: 'Código utilizado com sucesso!'
         });
 
     } catch (err) {

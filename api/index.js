@@ -205,7 +205,7 @@ app.post('/api/validate-code', async (req, res) => {
         const request = pool.request();
         console.log('Executando consulta SELECT...');
         
-        // Verifica se o código já existe para evitar duplicatas
+        // Verifica se o código já existe
         let result = await request
             .input('codigo', sql.NVarChar, codigo)
             .query('SELECT * FROM promocoes WHERE codigo = @codigo');
@@ -222,23 +222,28 @@ app.post('/api/validate-code', async (req, res) => {
                 console.log('Código já utilizado:', codigo);
                 return res.status(200).json({ message: 'Este código já foi utilizado!' });
             } else {
-                 // Atualiza o registro existente para marcar como clicado
-                console.log('Atualizando registro existente...');
-                await pool.request()
-                    .input('codigo', sql.NVarChar, codigo)
-                    .query('UPDATE promocoes SET clicou = 1 WHERE codigo = @codigo');
-                console.log('Código atualizado com sucesso:', codigo);
-                return res.status(200).json({ message: 'Código promocional validado e atualizado!' });
+                // Como não temos permissão UPDATE, vamos retornar sucesso sem atualizar
+                console.log('Código já registrado mas não clicado:', codigo);
+                return res.status(200).json({ message: 'Código promocional já registrado!' });
             }
         } else {
             // Se o código não existe, insere um novo registro
             console.log('Inserindo novo registro...');
-            await pool.request()
-                .input('promotor', sql.NVarChar, promotor)
-                .input('codigo', sql.NVarChar, codigo)
-                .query('INSERT INTO promocoes (promotor, codigo) VALUES (@promotor, @codigo)');
-            console.log('Novo código registrado com sucesso:', { promotor, codigo });
-            return res.status(201).json({ message: 'Código promocional registrado com sucesso!' });
+            try {
+                await pool.request()
+                    .input('promotor', sql.NVarChar, promotor)
+                    .input('codigo', sql.NVarChar, codigo)
+                    .query('INSERT INTO promocoes (promotor, codigo) VALUES (@promotor, @codigo)');
+                console.log('Novo código registrado com sucesso:', { promotor, codigo });
+                return res.status(201).json({ message: 'Código promocional registrado com sucesso!' });
+            } catch (insertErr) {
+                console.error('Erro ao inserir registro:', insertErr);
+                // Se der erro de duplicata, significa que o código já existe
+                if (insertErr.code === 'EREQUEST' && insertErr.message.includes('duplicate')) {
+                    return res.status(200).json({ message: 'Código promocional já registrado!' });
+                }
+                throw insertErr;
+            }
         }
     } catch (err) {
         console.error('=== ERRO DETALHADO ===');

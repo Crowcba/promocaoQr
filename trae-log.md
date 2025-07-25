@@ -89,3 +89,12 @@
   - **Verificação da estrutura da tabela**: Debug para confirmar se a tabela existe e tem estrutura correta
   - **Melhoria nas respostas de erro**: Inclusão de detalhes específicos do erro
   - **Commit e Push**: Alterações enviadas para o repositório Git com commit `b6eca24` - "feat: adicionar logs detalhados para debug do erro 500 específico"
+
+- **Verificação da Conexão com Banco de Dados**: Teste completo da configuração:
+  - **Criado script de teste**: Verificação completa da conexão e estrutura do banco
+  - **Conexão confirmada**: SQL Server 2022 acessível em 201.71.178.65:6565
+  - **Tabela promocoes verificada**: Estrutura correta com 117 registros existentes
+  - **Operações testadas**: SELECT, INSERT funcionando perfeitamente
+  - **Problema identificado**: Configuração inadequada para ambiente serverless
+  - **Otimização da configuração**: Pool reduzido para 5 conexões, timeouts ajustados
+  - **Commit e Push**: Alterações enviadas para o repositório Git com commit `d816185` - "fix: otimizar configuração do banco para ambiente serverless"

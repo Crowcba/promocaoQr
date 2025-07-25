@@ -4,7 +4,106 @@ const serverless = require('serverless-http');
 const dbConfig = require('./dbConfig');
 
 const app = express();
-app.use(express.json());
+
+// Rate limiting simples
+const requestCounts = new Map();
+const RATE_LIMIT_WINDOW = 60000; // 1 minuto
+const RATE_LIMIT_MAX = 10; // máximo 10 requests por minuto
+
+// Middleware de rate limiting
+function rateLimit(req, res, next) {
+    const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown';
+    const now = Date.now();
+    
+    if (!requestCounts.has(clientIP)) {
+        requestCounts.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    } else {
+        const clientData = requestCounts.get(clientIP);
+        if (now > clientData.resetTime) {
+            clientData.count = 1;
+            clientData.resetTime = now + RATE_LIMIT_WINDOW;
+        } else {
+            clientData.count++;
+        }
+        
+        if (clientData.count > RATE_LIMIT_MAX) {
+            return res.status(429).json({
+                message: 'Muitas requisições. Tente novamente em alguns instantes.',
+                error: 'Rate limit exceeded'
+            });
+        }
+    }
+    next();
+}
+
+// Middleware de validação e sanitização
+function validateInput(req, res, next) {
+    const { promotor, code } = req.body;
+    
+    // Validação básica
+    if (!promotor || !code) {
+        return res.status(400).json({
+            message: 'Promotor e código são obrigatórios.',
+            error: 'Missing required fields'
+        });
+    }
+    
+    // Sanitização básica
+    const sanitizedPromotor = String(promotor).trim().substring(0, 255);
+    const sanitizedCode = String(code).trim().substring(0, 255);
+    
+    // Validação de formato
+    if (sanitizedPromotor.length < 1 || sanitizedCode.length < 1) {
+        return res.status(400).json({
+            message: 'Promotor e código não podem estar vazios.',
+            error: 'Invalid input format'
+        });
+    }
+    
+    // Verificar caracteres suspeitos
+    const suspiciousPattern = /[<>\"'&]/;
+    if (suspiciousPattern.test(sanitizedPromotor) || suspiciousPattern.test(sanitizedCode)) {
+        return res.status(400).json({
+            message: 'Caracteres inválidos detectados.',
+            error: 'Invalid characters'
+        });
+    }
+    
+    // Adicionar dados sanitizados ao request
+    req.sanitizedData = {
+        promotor: sanitizedPromotor,
+        code: sanitizedCode
+    };
+    
+    next();
+}
+
+// Middleware de headers de segurança
+function securityHeaders(req, res, next) {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+    next();
+}
+
+// Middleware de logging de segurança
+function securityLog(req, res, next) {
+    const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown';
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    const timestamp = new Date().toISOString();
+    
+    // Log de tentativas de acesso
+    console.log(`[SECURITY] ${timestamp} - IP: ${clientIP} - UA: ${userAgent} - Path: ${req.path}`);
+    
+    next();
+}
+
+app.use(express.json({ limit: '1mb' })); // Limitar tamanho do JSON
+app.use(securityHeaders);
+app.use(securityLog);
+app.use(rateLimit);
 
 // Configuração específica para Netlify
 const netlifyConfig = {
@@ -69,18 +168,11 @@ app.get('/api/health', (req, res) => {
 });
 
 // Rota para validar código (primeira entrada no site)
-app.post('/api/validate-code', async (req, res) => {
+app.post('/api/validate-code', validateInput, async (req, res) => {
     try {
         await connectToDatabase();
         
-        const { promotor, code: codigo } = req.body;
-
-        if (!promotor || !codigo) {
-            return res.status(400).json({ 
-                message: 'Promotor ou código não fornecido no formato correto.',
-                received: { promotor, codigo }
-            });
-        }
+        const { promotor, code: codigo } = req.sanitizedData;
 
         // Sempre tenta inserir um novo registro
         try {
@@ -137,18 +229,11 @@ app.post('/api/validate-code', async (req, res) => {
 });
 
 // Rota para marcar como clicado (quando clica no link da TecnoVida)
-app.post('/api/mark-clicked', async (req, res) => {
+app.post('/api/mark-clicked', validateInput, async (req, res) => {
     try {
         await connectToDatabase();
         
-        const { code: codigo } = req.body;
-
-        if (!codigo) {
-            return res.status(400).json({ 
-                message: 'Código não fornecido.',
-                received: { codigo }
-            });
-        }
+        const { code: codigo } = req.sanitizedData;
 
         const request = pool.request();
         

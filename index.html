@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Promoção - Tecnovida</title>
+    
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://images.tcdn.com.br; connect-src 'self' https://promocaoqr.netlify.app;">
+    
+    <!-- Outros headers de segurança -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700&display=swap"></noscript>
     <style>
@@ -260,6 +270,42 @@
     </div>
 
     <script>
+        // Função para sanitizar entrada
+        function sanitizeInput(input) {
+            if (typeof input !== 'string') return '';
+            return input.trim().replace(/[<>\"'&]/g, '').substring(0, 255);
+        }
+
+        // Função para validar parâmetros da URL
+        function validateUrlParams(promotor, codigo) {
+            if (!promotor || !codigo) return false;
+            if (promotor.length < 1 || codigo.length < 1) return false;
+            if (promotor.length > 255 || codigo.length > 255) return false;
+            return true;
+        }
+
+        // Função para fazer requisições seguras
+        async function secureFetch(url, options) {
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return response;
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                throw error;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const loading = document.getElementById('loading-indicator');
             const statusMessage = document.getElementById('status-message');
@@ -271,11 +317,11 @@
             const params = new URLSearchParams(window.location.search);
             const urlPath = window.location.pathname.split('/').filter(part => part.length > 0);
             
-            let promotor = urlPath.length > 0 ? urlPath[0] : params.get('promotor');
-            let codigo = urlPath.length > 1 ? urlPath[1] : params.get('codigo');
+            let promotor = urlPath.length > 0 ? sanitizeInput(urlPath[0]) : sanitizeInput(params.get('promotor'));
+            let codigo = urlPath.length > 1 ? sanitizeInput(urlPath[1]) : sanitizeInput(params.get('codigo'));
 
-            if (!promotor || !codigo) {
-                showError('Informações incompletas na URL. Verifique o link recebido.');
+            if (!validateUrlParams(promotor, codigo)) {
+                showError('Informações incompletas ou inválidas na URL. Verifique o link recebido.');
                 return;
             }
 
@@ -286,11 +332,8 @@
 
             async function validateCode(promotor, codigo) {
                 try {
-                    const response = await fetch('/api/validate-code', {
+                    const response = await secureFetch('/api/validate-code', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
                         body: JSON.stringify({ promotor, code: codigo }),
                     });
 
@@ -348,16 +391,13 @@
             // Extrair código da URL
             const params = new URLSearchParams(window.location.search);
             const urlPath = window.location.pathname.split('/').filter(part => part.length > 0);
-            let codigo = urlPath.length > 1 ? urlPath[1] : params.get('codigo');
+            let codigo = urlPath.length > 1 ? sanitizeInput(urlPath[1]) : sanitizeInput(params.get('codigo'));
 
             btnSite.addEventListener('click', async function(e) {
                 // Primeiro marca como clicado
                 try {
-                    const response = await fetch('/api/mark-clicked', {
+                    const response = await secureFetch('/api/mark-clicked', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
                         body: JSON.stringify({ code: codigo }),
                     });
 
@@ -401,14 +441,32 @@
 
         function copiarCodigo() {
             const codigo = document.getElementById('codigo-display').textContent;
-            navigator.clipboard.writeText(codigo).then(() => {
-                const statusMessage = document.getElementById('status-message');
-                statusMessage.textContent = 'Código copiado com sucesso!';
-                statusMessage.style.color = '#006633';
-                statusMessage.classList.add('show');
-            }, () => {
-                alert('Erro ao copiar o código.');
-            });
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(codigo).then(() => {
+                    const statusMessage = document.getElementById('status-message');
+                    statusMessage.textContent = 'Código copiado com sucesso!';
+                    statusMessage.style.color = '#006633';
+                    statusMessage.classList.add('show');
+                }, () => {
+                    alert('Erro ao copiar o código.');
+                });
+            } else {
+                // Fallback para navegadores mais antigos
+                const textArea = document.createElement('textarea');
+                textArea.value = codigo;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    const statusMessage = document.getElementById('status-message');
+                    statusMessage.textContent = 'Código copiado com sucesso!';
+                    statusMessage.style.color = '#006633';
+                    statusMessage.classList.add('show');
+                } catch (err) {
+                    alert('Erro ao copiar o código.');
+                }
+                document.body.removeChild(textArea);
+            }
         }
     </script>
 </body>

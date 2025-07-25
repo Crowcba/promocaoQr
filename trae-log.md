@@ -134,3 +134,13 @@
   - **Sistema validado**: Todas as operações de banco funcionando corretamente
   - **Status**: ✅ SISTEMA 100% FUNCIONAL E PRONTO PARA PRODUÇÃO
   - **Resultado**: 🎉 PROJETO CONCLUÍDO COM SUCESSO TOTAL
+
+- **Implementação da Lógica de Duas Etapas**: Ajuste final conforme solicitado:
+  - **Primeira etapa (entrada no site)**: INSERT com `clicou = 0`
+  - **Segunda etapa (clique no link)**: UPDATE para `clicou = 1`
+  - **Nova rota criada**: `/api/mark-clicked` para marcar códigos como utilizados
+  - **Frontend ajustado**: Valida primeiro, depois marca como clicado
+  - **Botão controlado**: Só fica ativo após validação bem-sucedida
+  - **Fluxo completo**: INSERT → validação → ativa botão → clique → UPDATE
+  - **Status**: ✅ SISTEMA FUNCIONANDO EXATAMENTE COMO SOLICITADO
+  - **Commit e Push**: Alterações enviadas para o repositório Git com commit `8b5914f` - "feat: implementar lógica de duas etapas"

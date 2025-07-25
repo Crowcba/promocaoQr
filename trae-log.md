@@ -34,3 +34,10 @@
   - **Atualizado `netlify.toml`**: Adicionadas configurações de build e ambiente de produção
 - **Problemas identificados**: Dependências não instaladas corretamente no ambiente serverless, falta de logs para debug, e configurações inadequadas para o ambiente Netlify
 - **Commit e Push**: Alterações enviadas para o repositório Git com commit `390fdd1` - "fix: corrigir erro interno no servidor Netlify"
+
+- **Investigações Adicionais**: Identificado erro 500 específico em algumas requisições:
+  - **Teste da API**: A rota `/api/health` está funcionando corretamente
+  - **Teste de validação**: A rota `/api/validate-code` funciona quando testada diretamente
+  - **Implementação de logs detalhados**: Adicionados logs extensivos para identificar o problema específico
+  - **Melhoria no tratamento de erros**: Categorização de diferentes tipos de erro (conexão, autenticação, timeout)
+  - **Commit e Push**: Alterações enviadas para o repositório Git com commit `e5152de` - "feat: adicionar logs detalhados para debug do erro 500"

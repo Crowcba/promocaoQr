@@ -6,6 +6,12 @@ const dbConfig = require('./dbConfig');
 const app = express();
 app.use(express.json());
 
+// Verificação de ambiente
+console.log('=== CONFIGURAÇÃO DO AMBIENTE ===');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('DB_TYPE:', process.env.DB_TYPE);
+console.log('Ambiente detectado:', process.env.NODE_ENV === 'production' ? 'PRODUÇÃO' : 'DESENVOLVIMENTO');
+
 // Configuração específica para Netlify
 const netlifyConfig = {
     ...dbConfig,
@@ -17,6 +23,13 @@ const netlifyConfig = {
         idleTimeoutMillis: 30000
     }
 };
+
+console.log('Configuração do banco carregada:', {
+    server: netlifyConfig.server,
+    port: netlifyConfig.port,
+    database: netlifyConfig.database,
+    user: netlifyConfig.user
+});
 
 let pool;
 

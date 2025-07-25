@@ -80,3 +80,12 @@
   - **Middleware de tratamento de erros global**: Garantia de headers CORS em caso de erro
   - **Configuração mais robusta**: Suporte a credenciais e headers adicionais
   - **Commit e Push**: Alterações enviadas para o repositório Git com commit `b6a21bb` - "fix: melhorar configuração de CORS e tratamento de erros"
+
+- **Descoberta do Erro 500 Específico**: Identificação do problema real:
+  - **Logs do frontend analisados**: Parâmetros extraídos corretamente (promotor: teste-23, código: 0001)
+  - **Teste com dados específicos**: Erro 500 confirmado mesmo via curl com os mesmos dados
+  - **Problema identificado**: Erro está na API, não no frontend ou CORS
+  - **Implementação de logs detalhados**: Categorização específica de erros (conexão, autenticação, SQL)
+  - **Verificação da estrutura da tabela**: Debug para confirmar se a tabela existe e tem estrutura correta
+  - **Melhoria nas respostas de erro**: Inclusão de detalhes específicos do erro
+  - **Commit e Push**: Alterações enviadas para o repositório Git com commit `b6eca24` - "feat: adicionar logs detalhados para debug do erro 500 específico"

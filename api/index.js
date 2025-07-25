@@ -189,6 +189,19 @@ app.post('/api/validate-code', async (req, res) => {
 
         console.log('Validando código:', { promotor, codigo });
 
+        // Verificar se a tabela existe e tem a estrutura correta
+        console.log('Verificando estrutura da tabela...');
+        try {
+            const tableCheck = await pool.request().query(`
+                SELECT COLUMN_NAME, DATA_TYPE 
+                FROM INFORMATION_SCHEMA.COLUMNS 
+                WHERE TABLE_NAME = 'promocoes'
+            `);
+            console.log('Estrutura da tabela promocoes:', tableCheck.recordset);
+        } catch (tableErr) {
+            console.error('Erro ao verificar estrutura da tabela:', tableErr);
+        }
+
         const request = pool.request();
         console.log('Executando consulta SELECT...');
         
@@ -243,7 +256,8 @@ app.post('/api/validate-code', async (req, res) => {
             console.error('ERRO DE CONEXÃO COM BANCO DE DADOS');
             return res.status(500).json({ 
                 message: 'Erro de conexão com o banco de dados. Tente novamente em alguns instantes.',
-                error: 'Database connection error'
+                error: 'Database connection error',
+                details: err.message
             });
         }
         
@@ -252,13 +266,25 @@ app.post('/api/validate-code', async (req, res) => {
             console.error('ERRO DE AUTENTICAÇÃO NO BANCO DE DADOS');
             return res.status(500).json({ 
                 message: 'Erro de autenticação no banco de dados.',
-                error: 'Database authentication error'
+                error: 'Database authentication error',
+                details: err.message
+            });
+        }
+        
+        // Verificar se é um erro de SQL
+        if (err.code === 'EREQUEST' || err.code === 'ESQL') {
+            console.error('ERRO DE SQL');
+            return res.status(500).json({ 
+                message: 'Erro na consulta ao banco de dados.',
+                error: 'SQL error',
+                details: err.message
             });
         }
         
         return res.status(500).json({ 
             message: 'Erro interno do servidor.',
-            error: process.env.NODE_ENV === 'development' ? err.message : 'Erro de processamento'
+            error: process.env.NODE_ENV === 'development' ? err.message : 'Erro de processamento',
+            details: err.message
         });
     } finally {
         console.log('=== FIM DA REQUISIÇÃO /api/validate-code ===');

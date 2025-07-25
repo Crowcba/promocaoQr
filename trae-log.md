@@ -71,3 +71,12 @@
   - **Melhoria no tratamento de erros**: Logs de extração de parâmetros da URL e validação
   - **Debug de requisições e respostas**: Logs completos para identificar o problema específico
   - **Commit e Push**: Alterações enviadas para o repositório Git com commit `475c20a` - "feat: adicionar logs detalhados no frontend para debug do erro 500"
+
+- **Verificação e Melhoria do CORS**: Análise completa da configuração de CORS:
+  - **Teste de CORS via curl**: Confirmado que CORS está funcionando corretamente
+  - **Headers CORS verificados**: `access-control-allow-origin: *` presente e correto
+  - **Melhoria da configuração CORS**: Adicionados origins permitidos específicos
+  - **Logs detalhados no middleware CORS**: Para debug de requisições cross-origin
+  - **Middleware de tratamento de erros global**: Garantia de headers CORS em caso de erro
+  - **Configuração mais robusta**: Suporte a credenciais e headers adicionais
+  - **Commit e Push**: Alterações enviadas para o repositório Git com commit `b6a21bb` - "fix: melhorar configuração de CORS e tratamento de erros"
